@@ -1,8 +1,8 @@
 import streamlit as st
 import openai
 
-# OpenAI APIキーを設定
-openai.api_key = 'YOUR_OPENAI_API_KEY'
+# Streamlit Community Cloudの「Secrets」からOpenAI API keyを取得
+openai.api_key = st.secrets.OpenAIAPI.openai_api_key
 
 def generate_response(prompt):
     response = openai.Completion.create(
