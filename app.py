@@ -72,22 +72,6 @@ def communicate():
 
     st.session_state["user_input"] = ""  # 入力欄を消去
 
-# def generate_response(prompt):
-#     try:
-#         response = openai.ChatCompletion.create(
-#             model="gpt-3.5-turbo",
-#             messages=[
-#                 {"role": "system", "content":system_prompt},
-#                 {"role": "user", "content": prompt}
-#             ],
-#             max_tokens=300,  # 増加した最大トークン数
-#             temperature=0.5,
-#         )
-#         message = response.choices[0].message['content'].strip()
-#         return message
-#     except openai.error.InvalidRequestError as e:
-#         return f"Error: {e}"
-
 # Streamlitアプリの設定
 st.title('サラダバー勧誘ゲーム')
 st.image("salad_bar.png")
