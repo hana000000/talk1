@@ -1,5 +1,6 @@
 import streamlit as st
 import openai
+import time
 
 system_prompt = """
 このスレッドでは以下ルールを厳格に守ってください。
@@ -54,21 +55,26 @@ def communicate():
     user_message = {"role": "user", "content": st.session_state["user_input"]}
     messages.append(user_message)
 
-    try:
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=messages,
-            max_tokens=150,  # 増加した最大トークン数
-            temperature=0.5,
-        )
+    retries = 3
+    for _ in range(retries):
+        try:
+            response = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo",
+                messages=messages,
+                max_tokens=150,  # 増加した最大トークン数
+                temperature=0.5,
+            )
 
-        bot_message = response["choices"][0]["message"]
-        messages.append(bot_message)
+            bot_message = response["choices"][0]["message"]
+            messages.append(bot_message)
+            break
 
-    except openai.error.RateLimitError:
-        st.warning("リクエストが多すぎます。少し待ってから再試行します。")
-    except openai.error.OpenAIError as e:
-        st.error(f"エラーが発生しました: {e}")
+        except openai.error.RateLimitError:
+            st.warning("リクエストが多すぎます。少し待ってから再試行します。")
+            time.sleep(5)
+        except openai.error.OpenAIError as e:
+            st.error(f"エラーが発生しました: {e}")
+            break
 
     st.session_state["user_input"] = ""  # 入力欄を消去
 
