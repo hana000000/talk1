@@ -6,15 +6,16 @@ openai.api_key = st.secrets.OpenAIAPI.openai_api_key
 
 def generate_response(prompt):
     try:
-        response = openai.Completion.create(
-            engine="text-davinci-003",
-            prompt=prompt,
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant."},
+                {"role": "user", "content": prompt}
+            ],
             max_tokens=100,
-            n=1,
-            stop=None,
             temperature=0.5,
         )
-        message = response.choices[0].text.strip()
+        message = response.choices[0].message['content'].strip()
         return message
     except openai.error.InvalidRequestError as e:
         return f"Error: {e}"
