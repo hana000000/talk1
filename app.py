@@ -59,6 +59,7 @@ def communicate():
             model="gpt-3.5-turbo",
             messages=messages
         )
+      　max_tokens=150,  # 増加した最大トークン数
 
         bot_message = response["choices"][0]["message"]
         messages.append(bot_message)
