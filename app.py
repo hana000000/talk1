@@ -42,21 +42,46 @@ system_prompt = """
 # Streamlit Community Cloudの「Secrets」からOpenAI API keyを取得
 openai.api_key = st.secrets.OpenAIAPI.openai_api_key
 
-def generate_response(prompt):
-    try:
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content":system_prompt},
-                {"role": "user", "content": prompt}
-            ],
-            max_tokens=300,  # 増加した最大トークン数
-            temperature=0.5,
-        )
-        message = response.choices[0].message['content'].strip()
-        return message
-    except openai.error.InvalidRequestError as e:
-        return f"Error: {e}"
+# st.session_stateを使いメッセージのやりとりを保存
+if "messages" not in st.session_state:
+    st.session_state["messages"] = [
+        {"role": "system", "content": system_prompt}
+    ]
+
+
+
+# チャットボットとやりとりする関数
+def communicate():
+    messages = st.session_state["messages"]
+
+    user_message = {"role": "user", "content": st.session_state["user_input"]}
+    messages.append(user_message)
+
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=messages
+    )
+
+    bot_message = response["choices"][0]["message"]
+    messages.append(bot_message)
+
+    st.session_state["user_input"] = ""  # 入力欄を消去
+
+# def generate_response(prompt):
+#     try:
+#         response = openai.ChatCompletion.create(
+#             model="gpt-3.5-turbo",
+#             messages=[
+#                 {"role": "system", "content":system_prompt},
+#                 {"role": "user", "content": prompt}
+#             ],
+#             max_tokens=300,  # 増加した最大トークン数
+#             temperature=0.5,
+#         )
+#         message = response.choices[0].message['content'].strip()
+#         return message
+#     except openai.error.InvalidRequestError as e:
+#         return f"Error: {e}"
 
 # Streamlitアプリの設定
 st.title('サラダバー勧誘ゲーム')
@@ -67,19 +92,14 @@ st.write('趣味はゲームで運動もしません。')
 st.write('会話のターン５回までに、今日サラダバーを一緒に利用したいと思わせてください。')
 
 # ユーザー入力
-user_input = st.text_input('あなたの発言を入力してください：')
+user_input = st.text_input("メッセージを入力してください。", key="user_input", on_change=communicate)
 
-if user_input:
-    # GPTにリクエストを送信
-    prompt = f"サラダバーを同僚に勧めています：{user_input}"
-    response = generate_response(prompt)
-    
-    # 返答を表示
-    st.write('同僚の返答：')
-    st.write(response)
+if st.session_state["messages"]:
+    messages = st.session_state["messages"]
 
-    # 追加の内容がある場合、それを取得して表示
-    while response and len(response.split()) >= 100:  # 追加内容があるかを確認
-        prompt = f"{response} 続けてください。"  # 前回の応答に続けて質問
-        response = generate_response(prompt)
-        st.write(response)
+    for message in reversed(messages[1:]):  # 直近のメッセージを上に
+        speaker = "🙂"
+        if message["role"]=="assistant":
+            speaker="🤖"
+
+        st.write(speaker + ": " + message["content"])
