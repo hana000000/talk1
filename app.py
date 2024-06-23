@@ -9,8 +9,8 @@ def generate_response(prompt):
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": /
-                 "あなたはサラダと健康的な食生活の専門家です。サラダに関する詳細かつ情報豊富な回答を提供してください。"/
+                {"role": "system", "content": \
+                 "あなたはサラダと健康的な食生活の専門家です。サラダに関する詳細かつ情報豊富な回答を提供してください。"\
                  
                 
                 
