@@ -1,46 +1,33 @@
-
 import streamlit as st
 import openai
 
-# Streamlit Community Cloudの「Secrets」からOpenAI API keyを取得
-openai.api_key = st.secrets.OpenAIAPI.openai_api_key
+# OpenAI APIキーを設定
+openai.api_key = 'YOUR_OPENAI_API_KEY'
 
-# st.session_stateを使いメッセージのやりとりを保存
-if "messages" not in st.session_state:
-    st.session_state["messages"] = [
-        {"role": "system", "content": "あなたは優秀なアシスタントAIです。"}
-        ]
-
-# チャットボットとやりとりする関数
-def communicate():
-    messages = st.session_state["messages"]
-
-    user_message = {"role": "user", "content": st.session_state["user_input"]}
-    messages.append(user_message)
-
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=messages
+def generate_response(prompt):
+    response = openai.Completion.create(
+        engine="text-davinci-003",
+        prompt=prompt,
+        max_tokens=100,
+        n=1,
+        stop=None,
+        temperature=0.5,
     )
+    message = response.choices[0].text.strip()
+    return message
 
-    bot_message = response["choices"][0]["message"]
-    messages.append(bot_message)
+# Streamlitアプリの設定
+st.title('サラダ習慣')
+st.write('サラダについての質問に答えます。何でも聞いてください！')
 
-    st.session_state["user_input"] = ""  # 入力欄を消去
+# ユーザー入力
+user_input = st.text_input('質問を入力してください：')
 
-
-# ユーザーインターフェイスの構築
-st.title("My AI Assistant")
-st.write("ChatGPT APIを使ったチャットボットです。")
-
-user_input = st.text_input("メッセージを入力してください。", key="user_input", on_change=communicate)
-
-if st.session_state["messages"]:
-    messages = st.session_state["messages"]
-
-    for message in reversed(messages[1:]):  # 直近のメッセージを上に
-        speaker = "🙂"
-        if message["role"]=="assistant":
-            speaker="🤖"
-
-        st.write(speaker + ": " + message["content"])
+if user_input:
+    # GPTにリクエストを送信
+    prompt = f"サラダに関する質問です：{user_input}"
+    response = generate_response(prompt)
+    
+    # 返答を表示
+    st.write('GPTの返答：')
+    st.write(response)
