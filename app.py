@@ -10,14 +10,13 @@ user_input = st.text_input("Enter your query:")
 
 if st.button("Submit"):
     try:
-        response = openai.Completion.create(
-            engine="gpt-3.5-turbo",
-            prompt=user_input,
-            max_tokens=150,
-            n=1,
-            stop=None,
-            temperature=0.5,
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant."},
+                {"role": "user", "content": user_input}
+            ]
         )
-        st.write(response.choices[0].text.strip())
+        st.write(response.choices[0].message['content'].strip())
     except openai.error.OpenAIError as e:
         st.error(f"An error occurred: {e}")
