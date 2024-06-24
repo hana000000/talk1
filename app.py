@@ -5,31 +5,27 @@ import openai
 openai.api_key = st.secrets["OpenAIAPI"]["openai_api_key"]
 
 def generate_response(prompt):
-    try:
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "あなたはサラダと健康的な食生活の専門家です。サラダに関する詳細かつ情報豊富な回答を提供してください。"},
-                {"role": "user", "content": prompt}
-            ],
-            max_tokens=100,
-            temperature=0.5,
-        )
-        message = response.choices[0].message['content'].strip()
-        return message
-    except openai.error.InvalidRequestError as e:
-        return f"Error: {e}"
+    response = openai.Completion.create(
+        engine="text-davinci-003",
+        prompt=prompt,
+        max_tokens=100,
+        n=1,
+        stop=None,
+        temperature=0.5,
+    )
+    message = response.choices[0].text.strip()
+    return message
 
 # Streamlitアプリの設定
-st.title('サラダ習慣')
-st.write('サラダについての質問に答えます。何でも聞いてください！')
+st.title('しりとりマスター')
+st.write('日本語で楽しいしりとりゲームをしましょう！')
 
 # ユーザー入力
-user_input = st.text_input('質問を入力してください：')
+user_input = st.text_input('あなたの言葉を入力してください：')
 
 if user_input:
     # GPTにリクエストを送信
-    prompt = f"サラダに関する質問です：{user_input}"
+    prompt = f"しりとりゲームをしましょう。あなたの言葉は '{user_input}' です。次の言葉を教えてください。"
     response = generate_response(prompt)
     
     # 返答を表示
